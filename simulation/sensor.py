@@ -30,12 +30,15 @@ class Sensor():
         
         sensor_coordinates = (car_coordinates[0] - (math.cos(car_angle) * self.coordinate_offset), car_coordinates[1] - (math.sin(car_angle) * self.coordinate_offset))
 
-        # draw line for animation
-        start_line = sensor_coordinates
-        end_line = (sensor_coordinates[0]-(math.cos(sensor_angle)*self.sensor_reach), sensor_coordinates[1]-(math.sin(sensor_angle) * self.sensor_reach))
-        pygame.draw.line(screen, "Red", start_line, end_line, width=1)
-        pygame.display.flip()
-        found_obstacle = False
+        # draw sensor line for animation
+        def draw_sensor_line():
+            start_line = sensor_coordinates
+            end_line = (sensor_coordinates[0]-(math.cos(sensor_angle)*self.sensor_reach), sensor_coordinates[1]-(math.sin(sensor_angle) * self.sensor_reach))
+            pygame.draw.line(screen, "Red", start_line, end_line, width=1)
+            pygame.display.flip()
+            found_obstacle = False
+
+        draw_sensor_line()
 
         cos = math.cos(sensor_angle)
         sin = math.sin(sensor_angle)
@@ -46,12 +49,14 @@ class Sensor():
             
             found_obstacle = self.check_for_obstacles((sensor_coordinates[0]-x, sensor_coordinates[1]-y), environment)
             if found_obstacle:
-                return obstacle_distance
+                if obstacle_distance == 0: # car hit obstacle
+                    return obstacle_distance, True
+                return obstacle_distance, False
             else:
                 obstacle_distance += 1
 
         if not found_obstacle:
-            return None
+            return self.sensor_reach, False
     
     def check_for_obstacles(self, coordinates, environment):
         coordinates = (round(coordinates[0]), round(coordinates[1]))

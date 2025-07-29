@@ -14,13 +14,14 @@ class Car():
         self.front_color = "Red"
         self.width = 15
         self.height = 30
-        self.sensor_reach = 40
+        self.sensor_reach = 45
         self.sensors = {
             "s1": Sensor("front-left", self.sensor_reach),
             "s2": Sensor("front-right", self.sensor_reach),
             "s3": Sensor("side-left", self.sensor_reach),
             "s4": Sensor("side-right", self.sensor_reach)
         }
+        self.hit_obstacle = False
 
     def get_car_corners(self):
         corner_1 = np.array([ -self.width, -self.height])
@@ -40,25 +41,25 @@ class Car():
         return [rotated_corner_1, rotated_corner_2, rotated_corner_3, rotated_corner_4]
 
 
-    def reset_position(self):
-        self.position = (80,80)
-
+    def reset_position(self, initial_pos):
+        self.position = initial_pos
 
     def move_forward(self, speed):
         # speed goes from 1 pixel per frame to 10 pixels per frame
         angle = self.angle - PI/2
 
-        self.x_position -= math.cos(angle) * speed
-        self.y_position -= math.sin(angle) * speed
+        self.x_position -= math.cos(angle) * (speed*20)
+        self.y_position -= math.sin(angle) * (speed*20)
 
     def steer(self, value):
         # value goes from -1.0 (left) to 1.0 (right)
-        self.angle += value * math.pi / 5
+        self.angle += value * math.pi / 30
 
     def get_sensor_data(self, environment, screen):
         sensor_data = []
         for sensor in self.sensors.values():
-            distance = sensor.get_distance(self.angle, (self.x_position, self.y_position), environment, screen)
+            distance, hit_obstacle = sensor.get_distance(self.angle, (self.x_position, self.y_position), environment, screen)
             sensor_data.append(distance)
-        
+            if hit_obstacle:
+                self.hit_obstacle = True
         return sensor_data

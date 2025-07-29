@@ -33,7 +33,7 @@ class Map():
         self.surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
         self.surface.fill((0,0,0,0))
 
-        # objjects for start button
+        # objects for start button
         btn_rect = pygame.Rect(1100, 30, 150, 30)
         font = pygame.font.SysFont(None, 24)
         btn_text = font.render("Starte Evolution", True, (255,255,255))
@@ -74,7 +74,7 @@ class Map():
             pygame.display.flip()
     
     # renders the map, updates the position of the car and shows information
-    def render(self, screen: pygame.display):
+    def render(self, screen: pygame.display, generation, network):
 
         # overwrite anything
         screen.fill((255, 255, 255))
@@ -82,8 +82,9 @@ class Map():
         if self.surface:
             screen.blit(self.surface, (0,0))
 
-        # redraw the screen with the new car position
+        # redraw the screen
         self.draw_car(screen)
+        self.draw_dashboard(screen, generation, network)
 
 
     def draw_car(self, screen: pygame.display):
@@ -100,3 +101,14 @@ class Map():
         front_line_start = (self.car.x_position + car_corners[2][0], self.car.y_position + car_corners[2][1])
         front_line_end = (self.car.x_position + car_corners[3][0], self.car.y_position + car_corners[3][1])
         pygame.draw.line(screen, self.car.front_color, front_line_start, front_line_end, width=2)
+
+    def draw_dashboard(self, screen, generation, network):
+        font = pygame.font.SysFont("Arial", 24)
+        text_surface = font.render(f"Generation: {generation}", True, (0, 0, 0))  # weißer Text
+        text_rect = text_surface.get_rect(center=(200, 150))
+        screen.blit(text_surface, text_rect)
+
+        font = pygame.font.SysFont("Arial", 24)
+        text_surface = font.render(f"Network: {network}", True, (0, 0, 0))  # weißer Text
+        text_rect = text_surface.get_rect(center=(200, 170))
+        screen.blit(text_surface, text_rect)

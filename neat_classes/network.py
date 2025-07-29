@@ -134,23 +134,10 @@ class Network():
         for neuron in self.get_all_neurons():
             neuron.reset()
     
-    def get_raw_fitness(self, simulation_handler):
+    def get_raw_fitness(self, simulation_handler, generation):
 
-        simulation_handler.start_episode(self)
+        self.raw_fitness = simulation_handler.start_episode(self, generation)
 
-
-        outputs = [
-            (self.compute_inputs(0,0), 0), 
-            (self.compute_inputs(0,1), 1),
-            (self.compute_inputs(1,0), 1),
-            (self.compute_inputs(1,1), 0)
-        ]
-
-        total_error = 0
-        for out, target in outputs:
-            total_error += (out-target)**2
-
-        self.raw_fitness = 1 / (1+total_error)
         return self.raw_fitness
 
     def get_expected_inputs(self, neuron):
@@ -164,6 +151,8 @@ class Network():
         queue = Queue()
         input_idx = 0
         input_neurons = self.get_input_neurons()
+        print(len(inputs))
+        print(len(input_neurons))
         for input_neuron in input_neurons:
             input_neuron.add_weighted_input(inputs[input_idx])
             queue.put(input_neuron)

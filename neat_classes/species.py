@@ -33,12 +33,12 @@ class Species():
         elif network.raw_fitness != None and self.representative.raw_fitness != None and network.raw_fitness > self.representative.raw_fitness: # representative is always the fittest network
             self.representative = network
 
-    def calculate_fitness(self, simulation_handler):
+    def calculate_fitness(self, simulation_handler, generation):
         # calculate raw fitness for each network in species
         total_adjusted_fitness = 0
         total_raw_fitness = 0
         for net in self.networks:
-            raw_fitness = net.get_raw_fitness(simulation_handler)
+            raw_fitness = net.get_raw_fitness(simulation_handler, generation)
             net.adjusted_fitness = raw_fitness / len(self.networks)
             total_adjusted_fitness += net.adjusted_fitness
             total_raw_fitness += raw_fitness

@@ -43,14 +43,14 @@ class PopulationHandler():
             network.initialize_minimal_network(self.hist_marker)
             initial_species.add_network(network)
 
-        initial_species.calculate_fitness(self.simulation_handler)
+        initial_species.calculate_fitness(self.simulation_handler, 0)
         # calculate adjusted fitness for each network in first species and remove low performing
         self.species.append(initial_species)
         print(f"Initial Species with {self.network_amount} organisms populated")
                 
 
     def start_evolution_process(self):
-        generation_counter = 0
+        generation_counter = 1
         best_network = None
         while best_network == None or best_network.raw_fitness < 0.9:
             # get sum of all average adjusted fitnesses of all species
@@ -69,11 +69,14 @@ class PopulationHandler():
                 else:
                 #remove low performing networks
                     self.species[i].remove_lowperforming_networks()
+                    print("Species adjusted fitness: ", self.species[i].total_adjusted_fitness)
                     adjusted_fitness_all_species += self.species[i].total_adjusted_fitness       
 
             self.species = [species for species in self.species if species is not None]
 
             new_population = []
+
+            print("Adjusted Fitness all species: ", adjusted_fitness_all_species)
 
             # each species produces certain amount of children based on its adjusted fitness
 
@@ -128,7 +131,7 @@ class PopulationHandler():
             
             # update average adjusted fitness in each species
             for species in self.species:
-                species.calculate_fitness(self.simulation_handler)
+                species.calculate_fitness(self.simulation_handler, generation_counter)
                 species.update_representative()
                 
                 print("----Species----")
