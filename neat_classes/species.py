@@ -33,15 +33,16 @@ class Species():
         elif network.raw_fitness != None and self.representative.raw_fitness != None and network.raw_fitness > self.representative.raw_fitness: # representative is always the fittest network
             self.representative = network
 
-    def calculate_fitness(self, simulation_handler, generation):
+    def calculate_fitness(self, simulation_handler, run_stat):
         # calculate raw fitness for each network in species
         total_adjusted_fitness = 0
         total_raw_fitness = 0
+
         for net in self.networks:
-            raw_fitness = net.get_raw_fitness(simulation_handler, generation)
-            net.adjusted_fitness = raw_fitness / len(self.networks)
+            #raw_fitness = net.get_raw_fitness(simulation_handler)
+            net.adjusted_fitness = net.raw_fitness / len(self.networks)
             total_adjusted_fitness += net.adjusted_fitness
-            total_raw_fitness += raw_fitness
+            total_raw_fitness += net.raw_fitness
 
         self.total_adjusted_fitness = total_adjusted_fitness
         self.last_average_fitness = self.current_average_fitness
@@ -246,7 +247,7 @@ class Species():
                 if (connection.connection_id not in [conn.connection_id for conn in parent_1.connections]) and (connection.connection_id not in [c.connection_id for c in child_connections]):
                     child_connections.append(connection)
 
-        crossover_network = Network(2,1)
+        crossover_network = Network(4,2)
         neurons = []
 
         # add all neurons used in connections to neuron list

@@ -25,13 +25,16 @@ species_similarity_threshold = config["species_similarity_threshold"] # threshol
 stagnation_treshold = config["stagnation_treshold"] # amount of generations a species survives without fitness improvements
 
 class PopulationHandler():
-    def __init__(self, initial_network, input_neurons, output_neurons, simulation_handler):
-        self.network_amount = initial_network
+    def __init__(self, initial_net_amount, input_neurons, output_neurons, simulation_handler, run_stat):
+        self.initial_net_amount = initial_net_amount
+        self.network_amount = initial_net_amount
         self.input_neurons = input_neurons
         self.output_neurons = output_neurons
         self.species: list[Species] = []
         self.hist_marker = HistoricalMarker(self.input_neurons + self.output_neurons) # hidden neuron IDs start after IDs for input and output neurons
         self.simulation_handler = simulation_handler
+        self.run_stat = run_stat
+        self.current_population = []
 
     def initial_population(self):
         # create first species
@@ -42,17 +45,22 @@ class PopulationHandler():
             network = Network(self.input_neurons, self.output_neurons)
             network.initialize_minimal_network(self.hist_marker)
             initial_species.add_network(network)
+            self.current_population.append(network)
 
-        initial_species.calculate_fitness(self.simulation_handler, 0)
+        self.simulation_handler.start_episode(self.current_population) # runs simulation, calculates raw fitness and saves it to net.raw_fitness
+
+        initial_species.calculate_fitness(self.simulation_handler, self.run_stat)
         # calculate adjusted fitness for each network in first species and remove low performing
         self.species.append(initial_species)
         print(f"Initial Species with {self.network_amount} organisms populated")
                 
 
     def start_evolution_process(self):
+
         generation_counter = 1
         best_network = None
-        while best_network == None or best_network.raw_fitness < 0.9:
+        while True:
+
             # get sum of all average adjusted fitnesses of all species
             print("********** Generation ", generation_counter, " **********")
             adjusted_fitness_all_species = 0
@@ -104,6 +112,10 @@ class PopulationHandler():
                         if best_network == None or net.raw_fitness > best_network.raw_fitness:
                             best_network = copy.deepcopy(net)
 
+            # update population calculate raw_fitness for each new network
+            self.current_population = new_population
+            self.simulation_handler.start_episode(self.current_population) # runs simulation, calculates raw fitness and saves it to net.raw_fitness
+
             # reset species
             for species in self.species:
                 species.reset_species()
@@ -131,20 +143,16 @@ class PopulationHandler():
             
             # update average adjusted fitness in each species
             for species in self.species:
-                species.calculate_fitness(self.simulation_handler, generation_counter)
+                species.calculate_fitness(self.simulation_handler, self.run_stat)
                 species.update_representative()
                 
                 print("----Species----")
                 print(species)
 
-            print("Population size: ", len(new_population))
+            self.run_stat.update(generation_counter, len(self.species), self.network_amount, best_network)
 
             generation_counter += 1
+            self.network_amount = len(new_population)
 
         best_network.reset_neurons()
         print("Best network: ", best_network)
-        print("Input   |   Raw Output   |   Rounded Ouput")
-        print(f" 0 0    |       {round(best_network.compute_inputs(0,0), 2)}     |   {round(best_network.compute_inputs(0,0))}")
-        print(f" 0 1    |       {round(best_network.compute_inputs(0,1), 2)}     |   {round(best_network.compute_inputs(0,1))}")
-        print(f" 1 0    |       {round(best_network.compute_inputs(1,0), 2)}     |   {round(best_network.compute_inputs(1,0))}")
-        print(f" 1 1    |       {round(best_network.compute_inputs(1,1), 2)}     |   {round(best_network.compute_inputs(1,1))}")

@@ -134,9 +134,8 @@ class Network():
         for neuron in self.get_all_neurons():
             neuron.reset()
     
-    def get_raw_fitness(self, simulation_handler, generation):
-
-        self.raw_fitness = simulation_handler.start_episode(self, generation)
+    def get_raw_fitness(self, simulation_handler):
+        self.raw_fitness = simulation_handler.start_episode(self)
 
         return self.raw_fitness
 
@@ -151,12 +150,19 @@ class Network():
         queue = Queue()
         input_idx = 0
         input_neurons = self.get_input_neurons()
-        print(len(inputs))
-        print(len(input_neurons))
-        for input_neuron in input_neurons:
-            input_neuron.add_weighted_input(inputs[input_idx])
-            queue.put(input_neuron)
-            input_idx += 1
+        try:
+            for input_neuron in input_neurons:
+                input_neuron.add_weighted_input(inputs[input_idx])
+                queue.put(input_neuron)
+                input_idx += 1
+        except IndexError:
+                print("Error occured with network: ")
+                print(self)
+                print("Input Neurons: ", [n.id for n in self.input_neurons])
+                print("Output Neurons: ", [n.id for n in self.output_neurons])
+                print("Inputs: ")
+                for i in inputs:
+                    print(i)
 
         visited_neurons = []
 

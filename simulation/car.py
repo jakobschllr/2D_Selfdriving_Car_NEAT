@@ -41,11 +41,7 @@ class Car():
         return [rotated_corner_1, rotated_corner_2, rotated_corner_3, rotated_corner_4]
 
 
-    def reset_position(self, initial_pos):
-        self.position = initial_pos
-
     def move_forward(self, speed):
-        # speed goes from 1 pixel per frame to 10 pixels per frame
         angle = self.angle - PI/2
 
         self.x_position -= math.cos(angle) * (speed*20)
@@ -63,3 +59,30 @@ class Car():
             if hit_obstacle:
                 self.hit_obstacle = True
         return sensor_data
+    
+    def made_significant_move(self, pos_before, pos_after):
+
+        if pos_before != None:
+
+            if pos_before == pos_after:
+                return False  
+
+            start_x = pos_before[0] - 20
+            start_y = pos_before[1] - 20
+
+            end_x = pos_before[0] + 20
+            end_y = pos_before[1] + 20
+
+            x = start_x
+            y = start_y
+
+            while x <= end_x:
+                while y <= end_y:
+                    if pos_after == (x,y):
+                        print("Made no significant move")
+                        return False
+                    
+                    y += 1
+                x += 1
+
+            return True

@@ -38,7 +38,7 @@ class Sensor():
             pygame.display.flip()
             found_obstacle = False
 
-        draw_sensor_line()
+        #draw_sensor_line()
 
         cos = math.cos(sensor_angle)
         sin = math.sin(sensor_angle)
@@ -49,7 +49,7 @@ class Sensor():
             
             found_obstacle = self.check_for_obstacles((sensor_coordinates[0]-x, sensor_coordinates[1]-y), environment)
             if found_obstacle:
-                if obstacle_distance == 0: # car hit obstacle
+                if obstacle_distance < 5: # car (almost) hit obstacle
                     return obstacle_distance, True
                 return obstacle_distance, False
             else:
